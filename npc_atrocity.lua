@@ -1,11 +1,12 @@
 AddCSLuaFile()
+killicon.Add("npc_atrocity", "npc_atrocity/killicon_anim", color_white)
 ENT.Base = "base_nextbot"
 ENT.PhysgunDisabled = true
 ENT.AutomaticFrameAdvance = false
 ENT.TauntSounds = {
-	Sound("npc_Atrocity/taunt.mp3"),
+	Sound("npc_atrocity/taunt.mp3"),
 }
-local chaseMusic = Sound("npc_Atrocity/Atrocity.mp3")
+local chaseMusic = Sound("npc_atrocity/atrocity.mp3")
 
 local workshopID = "174117071"
 
@@ -13,73 +14,73 @@ local IsValid = IsValid
 
 if SERVER then
 
-local npc_Atrocity_acquire_distance =
-	CreateConVar("npc_Atrocity_acquire_distance", 2500, FCVAR_NONE,
-	"The maximum distance at which Atrocity will chase a target.")
+local npc_atrocity_acquire_distance =
+	CreateConVar("npc_atrocity_acquire_distance", 2500, FCVAR_NONE,
+	"The maximum distance at which atrocity will chase a target.")
 
-local npc_Atrocity_spawn_protect =
-	CreateConVar("npc_Atrocity_spawn_protect", 1, FCVAR_NONE,
-	"If set to 1, Atrocity will not target players or hide within 200 units of \z
+local npc_atrocity_spawn_protect =
+	CreateConVar("npc_atrocity_spawn_protect", 1, FCVAR_NONE,
+	"If set to 1, atrocity will not target players or hide within 200 units of \z
 	a spawn point.")
 
-local npc_Atrocity_attack_distance =
-	CreateConVar("npc_Atrocity_attack_distance", 80, FCVAR_NONE,
-	"The reach of Atrocity's attack.")
+local npc_atrocity_attack_distance =
+	CreateConVar("npc_atrocity_attack_distance", 80, FCVAR_NONE,
+	"The reach of atrocity's attack.")
 
-local npc_Atrocity_attack_interval =
-	CreateConVar("npc_Atrocity_attack_interval", 0.2, FCVAR_NONE,
-	"The delay between Atrocity's attacks.")
+local npc_atrocity_attack_interval =
+	CreateConVar("npc_atrocity_attack_interval", 0.2, FCVAR_NONE,
+	"The delay between atrocity's attacks.")
 
-local npc_Atrocity_attack_force =
-	CreateConVar("npc_Atrocity_attack_force", 800, FCVAR_NONE,
-	"The physical force of Atrocity's attack. Higher values throw things \z
+local npc_atrocity_attack_force =
+	CreateConVar("npc_atrocity_attack_force", 800, FCVAR_NONE,
+	"The physical force of atrocity's attack. Higher values throw things \z
 	farther.")
 
-local npc_Atrocity_smash_props =
-	CreateConVar("npc_Atrocity_smash_props", 1, FCVAR_NONE,
-	"If set to 1, Atrocity will punch through any props placed in their way.")
+local npc_atrocity_smash_props =
+	CreateConVar("npc_atrocity_smash_props", 1, FCVAR_NONE,
+	"If set to 1, atrocity will punch through any props placed in their way.")
 
-local npc_Atrocity_allow_jump =
-	CreateConVar("npc_Atrocity_allow_jump", 1, FCVAR_NONE,
-	"If set to 1, Atrocity will be able to jump.")
+local npc_atrocity_allow_jump =
+	CreateConVar("npc_atrocity_allow_jump", 1, FCVAR_NONE,
+	"If set to 1, atrocity will be able to jump.")
 
-local npc_Atrocity_hiding_scan_interval =
-	CreateConVar("npc_Atrocity_hiding_scan_interval", 3, FCVAR_NONE,
-	"Atrocity will only seek out hiding places every X seconds. This can be an \z
+local npc_atrocity_hiding_scan_interval =
+	CreateConVar("npc_atrocity_hiding_scan_interval", 3, FCVAR_NONE,
+	"atrocity will only seek out hiding places every X seconds. This can be an \z
 	expensive operation, so it is not recommended to lower this too much. \z
-	However, if distant Atrocitys are not hiding from you quickly enough, you \z
+	However, if distant atrocitys are not hiding from you quickly enough, you \z
 	may consider lowering this a small amount.")
 
-local npc_Atrocity_hiding_repath_interval =
-	CreateConVar("npc_Atrocity_hiding_repath_interval", 1, FCVAR_NONE,
-	"The path to Atrocity's hiding spot will be redetermined every X seconds.")
+local npc_atrocity_hiding_repath_interval =
+	CreateConVar("npc_atrocity_hiding_repath_interval", 1, FCVAR_NONE,
+	"The path to atrocity's hiding spot will be redetermined every X seconds.")
 
-local npc_Atrocity_chase_repath_interval =
-	CreateConVar("npc_Atrocity_chase_repath_interval", 0.1, FCVAR_NONE,
-	"The path to and position of Atrocity's target will be redetermined every \z
+local npc_atrocity_chase_repath_interval =
+	CreateConVar("npc_atrocity_chase_repath_interval", 0.1, FCVAR_NONE,
+	"The path to and position of atrocity's target will be redetermined every \z
 	X seconds.")
 
-local npc_Atrocity_expensive_scan_interval =
-	CreateConVar("npc_Atrocity_expensive_scan_interval", 1, FCVAR_NONE,
+local npc_atrocity_expensive_scan_interval =
+	CreateConVar("npc_atrocity_expensive_scan_interval", 1, FCVAR_NONE,
 	"Slightly expensive operations (distance calculations and entity \z
 	searching) will occur every X seconds.")
 
-local npc_Atrocity_force_download =
-	CreateConVar("npc_Atrocity_force_download", 1, FCVAR_ARCHIVE,
-	"If set to 1, clients will be forced to download Atrocity resources \z
+local npc_atrocity_force_download =
+	CreateConVar("npc_atrocity_force_download", 1, FCVAR_ARCHIVE,
+	"If set to 1, clients will be forced to download atrocity resources \z
 	(restart required after changing).\n\z
 	WARNING: If this option is disabled, clients will be unable to see or \z
-	hear Atrocity!")
+	hear atrocity!")
 
 local TAUNT_INTERVAL = 1.2
 local PATH_INFRACTION_TIMEOUT = 5
 
-if npc_Atrocity_force_download:GetBool() then
+if npc_atrocity_force_download:GetBool() then
 	resource.AddWorkshop(workshopID)
 end
 
-util.AddNetworkString("Atrocity_nag")
-util.AddNetworkString("Atrocity_navgen")
+util.AddNetworkString("atrocity_nag")
+util.AddNetworkString("atrocity_navgen")
 
 local trace = {
 	mask = MASK_SOLID_BRUSHONLY
@@ -110,10 +111,10 @@ local function isPositionExposed(pos)
 	return false
 end
 
-local VECTOR_Atrocity_HEIGHT = Vector(0, 0, 96)
+local VECTOR_atrocity_HEIGHT = Vector(0, 0, 96)
 local function isPointSuitableForHiding(point)
 	trace.start = point
-	trace.endpos = point + VECTOR_Atrocity_HEIGHT
+	trace.endpos = point + VECTOR_atrocity_HEIGHT
 	local tr = util.TraceLine(trace)
 
 	return (not tr.Hit)
@@ -142,7 +143,7 @@ local function buildHidingSpotCache()
 		end
 	end
 
-	print(string.format("npc_Atrocity: found %d suitable (%d unsuitable) hiding \z
+	print(string.format("npc_atrocity: found %d suitable (%d unsuitable) hiding \z
 		places in %d areas over %.2fms!", goodSpots, badSpots, #areas,
 		(SysTime() - rStart) * 1000))
 end
@@ -159,16 +160,16 @@ local function isValidTarget(ent)
 	local class = ent:GetClass()
 	return (ent:IsNPC()
 		and ent:Health() > 0
-		and class ~= "npc_Atrocity"
+		and class ~= "npc_atrocity"
 		and not class:find("bullseye"))
 end
 
-hook.Add("PlayerSpawnedNPC", "AtrocityMissingNavmeshNag", function(ply, ent)
+hook.Add("PlayerSpawnedNPC", "atrocityMissingNavmeshNag", function(ply, ent)
 	if not IsValid(ent) then return end
-	if ent:GetClass() ~= "npc_Atrocity" then return end
+	if ent:GetClass() ~= "npc_atrocity" then return end
 	if navmesh.GetNavAreaCount() > 0 then return end
 
-	net.Start("Atrocity_nag")
+	net.Start("atrocity_nag")
 	net.Send(ply)
 end)
 
@@ -177,9 +178,9 @@ local function navEndGenerate()
 	local timeElapsedStr = string.NiceTime(SysTime() - generateStart)
 
 	if not navmesh.IsGenerating() then
-		print("npc_Atrocity: Navmesh generation completed in " .. timeElapsedStr)
+		print("npc_atrocity: Navmesh generation completed in " .. timeElapsedStr)
 	else
-		print("npc_Atrocity: Navmesh generation aborted after " .. timeElapsedStr)
+		print("npc_atrocity: Navmesh generation aborted after " .. timeElapsedStr)
 	end
 
 	RunConsoleCommand("developer", "0")
@@ -242,7 +243,7 @@ local function navGenerate()
 	addEntitiesToSet(seeds, GAMEMODE.SpawnPoints or {})
 
 	if next(seeds, nil) == nil then
-		print("npc_Atrocity: Couldn't find any places to seed nav_generate")
+		print("npc_atrocity: Couldn't find any places to seed nav_generate")
 		return false
 	end
 
@@ -256,16 +257,16 @@ local function navGenerate()
 		local tr = util.TraceLine(trace)
 
 		if not tr.StartSolid and tr.Hit then
-			print(string.format("npc_Atrocity: Adding seed %s at %s", seed, pos))
+			print(string.format("npc_atrocity: Adding seed %s at %s", seed, pos))
 			navmesh.AddWalkableSeed(tr.HitPos, tr.HitNormal)
 		else
-			print(string.format("npc_Atrocity: Couldn't add seed %s at %s", seed,
+			print(string.format("npc_atrocity: Couldn't add seed %s at %s", seed,
 				pos))
 		end
 	end
 
-	for _, Atrocity in pairs(ents.FindByClass("npc_Atrocity")) do
-		Atrocity:Remove()
+	for _, atrocity in pairs(ents.FindByClass("npc_atrocity")) do
+		atrocity:Remove()
 	end
 
 	navmesh.SetPlayerSpawnName(next(seeds, nil):GetClass())
@@ -274,30 +275,30 @@ local function navGenerate()
 
 	if navmesh.IsGenerating() then
 		generateStart = SysTime()
-		hook.Add("ShutDown", "AtrocityNavGen", navEndGenerate)
+		hook.Add("ShutDown", "atrocityNavGen", navEndGenerate)
 	else
-		print("npc_Atrocity: nav_generate failed to initialize")
+		print("npc_atrocity: nav_generate failed to initialize")
 		navmesh.ClearWalkableSeeds()
 	end
 
 	return navmesh.IsGenerating()
 end
 
-concommand.Add("npc_Atrocity_learn", function(ply, cmd, args)
+concommand.Add("npc_atrocity_learn", function(ply, cmd, args)
 	if navmesh.IsGenerating() then
 		return
 	end
 
 	local isConsole = (ply:EntIndex() == 0)
 	if game.SinglePlayer() then
-		print("npc_Atrocity: Beginning nav_generate requested by " .. ply:Name())
+		print("npc_atrocity: Beginning nav_generate requested by " .. ply:Name())
 
 		RunConsoleCommand("nav_max_view_distance", "1")
 		RunConsoleCommand("nav_quicksave", "1")
 
 		RunConsoleCommand("developer", "1")
 	elseif isConsole then
-		print("npc_Atrocity: Beginning nav_generate requested by server console")
+		print("npc_atrocity: Beginning nav_generate requested by server console")
 	else
 		return
 	end
@@ -306,7 +307,7 @@ concommand.Add("npc_Atrocity_learn", function(ply, cmd, args)
 
 	local recipients = (success and player.GetHumans() or {ply})
 
-	net.Start("Atrocity_navgen")
+	net.Start("atrocity_navgen")
 		net.WriteBool(success)
 	net.Send(recipients)
 end)
@@ -361,7 +362,7 @@ function ENT:OnRemove()
 end
 
 function ENT:GetNearestTarget()
-	local maxAcquireDist = npc_Atrocity_acquire_distance:GetInt()
+	local maxAcquireDist = npc_atrocity_acquire_distance:GetInt()
 	local maxAcquireDistSqr = maxAcquireDist * maxAcquireDist
 	local myPos = self:GetPos()
 	local acquirableEntities = ents.FindInSphere(myPos, maxAcquireDist)
@@ -373,7 +374,7 @@ function ENT:GetNearestTarget()
 	for _, ent in pairs(acquirableEntities) do
 		if not isValidTarget(ent) then continue end
 
-		if npc_Atrocity_spawn_protect:GetBool() and ent:IsPlayer()
+		if npc_atrocity_spawn_protect:GetBool() and ent:IsPlayer()
 			and isPointNearSpawn(ent:GetPos(), 200)
 		then
 			continue
@@ -390,7 +391,7 @@ function ENT:GetNearestTarget()
 end
 
 function ENT:AttackNearbyTargets(radius)
-	local attackForce = npc_Atrocity_attack_force:GetInt()
+	local attackForce = npc_atrocity_attack_force:GetInt()
 	local hitSource = self:LocalToWorld(self:OBBCenter())
 	local nearEntities = ents.FindInSphere(hitSource, radius)
 	local hit = false
@@ -439,7 +440,7 @@ function ENT:AttackNearbyTargets(radius)
 
 			hit = (hit or (newHealth < health))
 		elseif ent:GetMoveType() == MOVETYPE_VPHYSICS then
-			if not npc_Atrocity_smash_props:GetBool() then continue end
+			if not npc_atrocity_smash_props:GetBool() then continue end
 			if ent:IsVehicle() and IsValid(ent:GetDriver()) then continue end
 
 			local entPos = ent:LocalToWorld(ent:OBBCenter())
@@ -526,13 +527,13 @@ function ENT:ClaimHidingSpot(hidingSpot)
 end
 
 local HIGH_JUMP_HEIGHT = 500
-function ENT:AtAtrocitytJumpAtTarget()
+function ENT:AtatrocitytJumpAtTarget()
 	if not self:IsOnGround() then return end
 
 	local targetPos = self.CurrentTarget:GetPos()
 	local xyDistSqr = (targetPos - self:GetPos()):Length2DSqr()
 	local zDifference = targetPos.z - self:GetPos().z
-	local maxAttackDistance = npc_Atrocity_attack_distance:GetInt()
+	local maxAttackDistance = npc_atrocity_attack_distance:GetInt()
 	if xyDistSqr <= math.pow(maxAttackDistance + 200, 2)
 		and zDifference >= maxAttackDistance
 	then
@@ -584,7 +585,7 @@ function ENT:BehaveUpdate()
 
 	local currentTime = CurTime()
 
-	local scanInterval = npc_Atrocity_expensive_scan_interval:GetFloat()
+	local scanInterval = npc_atrocity_expensive_scan_interval:GetFloat()
 	if currentTime - self.LastTargetSearch > scanInterval then
 		local target = self:GetNearestTarget()
 
@@ -599,9 +600,9 @@ function ENT:BehaveUpdate()
 	if IsValid(self.CurrentTarget) then
 		self.LastHidingPlaceScan = 0
 
-		local attackInterval = npc_Atrocity_attack_interval:GetFloat()
+		local attackInterval = npc_atrocity_attack_interval:GetFloat()
 		if currentTime - self.LastAttack > attackInterval then
-			local attackDistance = npc_Atrocity_attack_distance:GetInt()
+			local attackDistance = npc_atrocity_attack_distance:GetInt()
 			if self:AttackNearbyTargets(attackDistance) then
 				if currentTime - self.LastTaunt > TAUNT_INTERVAL then
 					self.LastTaunt = currentTime
@@ -614,7 +615,7 @@ function ENT:BehaveUpdate()
 			self.LastAttack = currentTime
 		end
 
-		local repathInterval = npc_Atrocity_chase_repath_interval:GetFloat()
+		local repathInterval = npc_atrocity_chase_repath_interval:GetFloat()
 		if currentTime - self.LastPathRecompute > repathInterval then
 			self.LastPathRecompute = currentTime
 			self:RecomputeTargetPath()
@@ -622,14 +623,14 @@ function ENT:BehaveUpdate()
 
 		self.MovePath:Update(self)
 
-		if self:IsOnGround() and npc_Atrocity_allow_jump:GetBool()
+		if self:IsOnGround() and npc_atrocity_allow_jump:GetBool()
 			and currentTime - self.LastJumpScan >= scanInterval
 		then
-			self:AtAtrocitytJumpAtTarget()
+			self:AtatrocitytJumpAtTarget()
 			self.LastJumpScan = currentTime
 		end
 	else
-		local hidingScanInterval = npc_Atrocity_hiding_scan_interval:GetFloat()
+		local hidingScanInterval = npc_atrocity_hiding_scan_interval:GetFloat()
 		if currentTime - self.LastHidingPlaceScan >= hidingScanInterval then
 			self.LastHidingPlaceScan = currentTime
 
@@ -638,7 +639,7 @@ function ENT:BehaveUpdate()
 		end
 
 		if self.HidingSpot ~= nil then
-			local hidingInterval = npc_Atrocity_hiding_repath_interval:GetFloat()
+			local hidingInterval = npc_atrocity_hiding_repath_interval:GetFloat()
 			if currentTime - self.LastPathRecompute >= hidingInterval then
 				self.LastPathRecompute = currentTime
 				self.MovePath:Compute(self, self.HidingSpot.pos)
@@ -694,26 +695,26 @@ end
 
 else
 
-local MAT_Atrocity = Material("npc_Atrocity/Atrocity")
-killicon.Add("npc_Atrocity", "npc_Atrocity/killicon", color_white)
-language.Add("npc_Atrocity", "Atrocity")
+local MAT_atrocity = Material("npc_atrocity/atrocity")
+killicon.Add("npc_atrocity", "npc_atrocity/killicon", color_white)
+language.Add("npc_atrocity", "atrocity")
 
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
 local developer = GetConVar("developer")
 local function DevPrint(devLevel, msg)
 	if developer:GetInt() >= devLevel then
-		print("npc_Atrocity: " .. msg)
+		print("npc_atrocity: " .. msg)
 	end
 end
 
 local panicMusic = nil
 local lastPanic = 0
 
-local npc_Atrocity_music_volume =
-	CreateConVar("npc_Atrocity_music_volume", 1,
+local npc_atrocity_music_volume =
+	CreateConVar("npc_atrocity_music_volume", 1,
 	bit.bor(FCVAR_DEMO, FCVAR_ARCHIVE),
-	"Maximum music volume when being chased by Atrocity. (0-1, where 0 is muted)")
+	"Maximum music volume when being chased by atrocity. (0-1, where 0 is muted)")
 
 local MUSIC_RESTART_DELAY = 2
 
@@ -721,15 +722,15 @@ local MUSIC_CUTOFF_DISTANCE = 1000
 
 local MUSIC_PANIC_DISTANCE = 200
 
-local MUSIC_Atrocity_PANIC_COUNT = 8
+local MUSIC_atrocity_PANIC_COUNT = 8
 
-local MUSIC_Atrocity_MAX_DISTANCE_SCORE =
-	(MUSIC_CUTOFF_DISTANCE - MUSIC_PANIC_DISTANCE) * MUSIC_Atrocity_PANIC_COUNT
+local MUSIC_atrocity_MAX_DISTANCE_SCORE =
+	(MUSIC_CUTOFF_DISTANCE - MUSIC_PANIC_DISTANCE) * MUSIC_atrocity_PANIC_COUNT
 
 local function updatePanicMusic()
-	if #ents.FindByClass("npc_Atrocity") == 0 then
+	if #ents.FindByClass("npc_atrocity") == 0 then
 		DevPrint(4, "Halting music timer.")
-		timer.Remove("AtrocityPanicMusicUpdate")
+		timer.Remove("atrocityPanicMusicUpdate")
 
 		if panicMusic ~= nil then
 			panicMusic:Stop()
@@ -747,7 +748,7 @@ local function updatePanicMusic()
 		end
 	end
 
-	local userVolume = math.Clamp(npc_Atrocity_music_volume:GetFloat(), 0, 1)
+	local userVolume = math.Clamp(npc_atrocity_music_volume:GetFloat(), 0, 1)
 	if userVolume == 0 or not IsValid(LocalPlayer()) then
 		panicMusic:Stop()
 		return
@@ -756,7 +757,7 @@ local function updatePanicMusic()
 	local totalDistanceScore = 0
 	local nearEntities = ents.FindInSphere(LocalPlayer():GetPos(), 1000)
 	for _, ent in pairs(nearEntities) do
-		if IsValid(ent) and ent:GetClass() == "npc_Atrocity" then
+		if IsValid(ent) and ent:GetClass() == "npc_atrocity" then
 			local distanceScore = math.max(0, MUSIC_CUTOFF_DISTANCE
 				- LocalPlayer():GetPos():Distance(ent:GetPos()))
 			totalDistanceScore = totalDistanceScore + distanceScore
@@ -764,7 +765,7 @@ local function updatePanicMusic()
 	end
 
 	local musicVolume = math.min(1,
-		totalDistanceScore / MUSIC_Atrocity_MAX_DISTANCE_SCORE)
+		totalDistanceScore / MUSIC_atrocity_MAX_DISTANCE_SCORE)
 
 	local shouldRestartMusic = (CurTime() - lastPanic >= MUSIC_RESTART_DELAY)
 	if musicVolume > 0 then
@@ -794,8 +795,8 @@ end
 
 local REPEAT_FOREVER = 0
 local function startTimer()
-	if not timer.Exists("AtrocityPanicMusicUpdate") then
-		timer.Create("AtrocityPanicMusicUpdate", 0.05, REPEAT_FOREVER,
+	if not timer.Exists("atrocityPanicMusicUpdate") then
+		timer.Create("atrocityPanicMusicUpdate", 0.05, REPEAT_FOREVER,
 			updatePanicMusic)
 		DevPrint(4, "Beginning music timer.")
 	end
@@ -814,7 +815,7 @@ end
 
 local DRAW_OFFSET = SPRITE_SIZE / 2 * vector_up
 function ENT:DrawTranslucent()
-	render.SetMaterial(MAT_Atrocity)
+	render.SetMaterial(MAT_atrocity)
 
 	local pos = self:GetPos() + DRAW_OFFSET
 	local normal = EyePos() - pos
@@ -834,12 +835,12 @@ function ENT:DrawTranslucent()
 		color_white, 180)
 end
 
-surface.CreateFont("AtrocityHUD", {
+surface.CreateFont("atrocityHUD", {
 	font = "Arial",
 	size = 56
 })
 
-surface.CreateFont("AtrocityHUDSmall", {
+surface.CreateFont("atrocityHUDSmall", {
 	font = "Arial",
 	size = 24
 })
@@ -884,19 +885,19 @@ local flavourText = ""
 local lastBracket = 0
 local generateStart = 0
 local function navGenerateHUDOverlay()
-	draw.SimpleTextOutlined("Atrocity is studying this map.", "AtrocityHUD",
+	draw.SimpleTextOutlined("atrocity is studying this map.", "atrocityHUD",
 		ScrW() / 2, ScrH() / 2, color_white,
 		TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, color_black)
-	draw.SimpleTextOutlined("Please wait...", "AtrocityHUD",
+	draw.SimpleTextOutlined("Please wait...", "atrocityHUD",
 		ScrW() / 2, ScrH() / 2, color_white,
 		TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, color_black)
 
 	local elapsed = SysTime() - generateStart
 	local elapsedStr = string_ToHMS(elapsed)
-	draw.SimpleTextOutlined("Time Elapsed:", "AtrocityHUDSmall",
+	draw.SimpleTextOutlined("Time Elapsed:", "atrocityHUDSmall",
 		ScrW() / 2, ScrH() * 3/4, color_white,
 		TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 1, color_black)
-	draw.SimpleTextOutlined(elapsedStr, "AtrocityHUDSmall",
+	draw.SimpleTextOutlined(elapsedStr, "atrocityHUDSmall",
 		ScrW() / 2, ScrH() * 3/4, color_white,
 		TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, color_black)
 
@@ -905,19 +906,19 @@ local function navGenerateHUDOverlay()
 		flavourText = table.Random(flavourTexts[math.min(5, textBracket)])
 		lastBracket = textBracket
 	end
-	draw.SimpleTextOutlined(flavourText, "AtrocityHUDSmall",
+	draw.SimpleTextOutlined(flavourText, "atrocityHUDSmall",
 		ScrW() / 2, ScrH() * 4/5, color_yellow,
 		TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, color_black)
 end
 
-net.Receive("Atrocity_navgen", function()
+net.Receive("atrocity_navgen", function()
 	local startSuccess = net.ReadBool()
 	if startSuccess then
 		generateStart = SysTime()
 		lastBracket = 0
-		hook.Add("HUDPaint", "AtrocityNavGenOverlay", navGenerateHUDOverlay)
+		hook.Add("HUDPaint", "atrocityNavGenOverlay", navGenerateHUDOverlay)
 	else
-		Derma_Message("Oh no. Atrocity doesn't even know where to start with \z
+		Derma_Message("Oh no. atrocity doesn't even know where to start with \z
 		this map.\n\z
 		If you're not running the Sandbox gamemode, switch to that and try \z
 		again.", "Error!")
@@ -927,7 +928,7 @@ end)
 local nagMe = true
 
 local function requestNavGenerate()
-	RunConsoleCommand("npc_Atrocity_learn")
+	RunConsoleCommand("npc_atrocity_learn")
 end
 
 local function stopNagging()
@@ -935,7 +936,7 @@ local function stopNagging()
 end
 
 local function navWarning()
-	Derma_Query("It will take a while (possibly hours) for Atrocity to figure \z
+	Derma_Query("It will take a while (possibly hours) for atrocity to figure \z
 		this map out.\n\z
 		While he's studying it, you won't be able to play,\n\z
 		and the game will appear to have frozen/crashed.\n\z
@@ -946,30 +947,30 @@ local function navWarning()
 		"Not right now.", nil)
 end
 
-net.Receive("Atrocity_nag", function()
+net.Receive("atrocity_nag", function()
 	if not nagMe then return end
 
 	if game.SinglePlayer() then
-		Derma_Query("Uh oh! Atrocity doesn't know this map.\n\z
+		Derma_Query("Uh oh! atrocity doesn't know this map.\n\z
 			Would you like him to learn it?",
-			"This map is not yet Atrocity-compatible!",
+			"This map is not yet atrocity-compatible!",
 			"Yes", navWarning,
 			"No", nil,
 			"No. Don't ask again.", stopNagging)
 	else
-		Derma_Query("Uh oh! Atrocity doesn't know this map. \z
+		Derma_Query("Uh oh! atrocity doesn't know this map. \z
 			He won't be able to move!\n\z
 			Because you're not in a single-player game, he isn't able to \z
 			learn it.\n\z
 			\n\z
-			Ask the server host about teaching this map to Atrocity.\n\z
+			Ask the server host about teaching this map to atrocity.\n\z
 			\n\z
-			If you ARE the server host, you can run npc_Atrocity_learn over \z
+			If you ARE the server host, you can run npc_atrocity_learn over \z
 			rcon.\n\z
 			Keep in mind that it may take hours during which you will be \z
 			unable\n\z
 			to play, and THE MAP WILL BE RESTARTED.",
-			"This map is currently not Atrocity-compatible!",
+			"This map is currently not atrocity-compatible!",
 			"Ok", nil,
 			"Ok. Don't say this again.", stopNagging)
 	end
@@ -977,9 +978,9 @@ end)
 
 end
 
-list.Set("NPC", "npc_Atrocity", {
-	Name = "Atrocity",
-	Class = "npc_Atrocity",
+list.Set("NPC", "npc_atrocity", {
+	Name = "atrocity",
+	Class = "npc_atrocity",
 	Category = "BIAST",
 	AdminOnly = false
 })
