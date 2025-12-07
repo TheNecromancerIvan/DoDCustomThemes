@@ -1,12 +1,19 @@
 AddCSLuaFile()
-killicon.Add("npc_atrocity", "npc_atrocity/killicon_anim", color_white)
+
 ENT.Base = "base_nextbot"
+
 ENT.PhysgunDisabled = true
 ENT.AutomaticFrameAdvance = false
+
+ENT.JumpSound = Sound("npc_atrocity/jump.mp3")
+ENT.JumpHighSound = Sound("npc_atrocity/spring.mp3")
 ENT.TauntSounds = {
-	Sound("npc_atrocity/taunt.mp3"),
+	Sound("npc_atrocity/pieceofcake.mp3"),
+	Sound("npc_atrocity/stepitup.mp3"),
+	Sound("npc_atrocity/tooeasy.mp3"),
+	Sound("npc_atrocity/tooslow.mp3"),
 }
-local chaseMusic = Sound("npc_atrocity/atrocity.mp3")
+local chaseMusic = Sound("npc_atrocity/panic.mp3")
 
 local workshopID = "174117071"
 
@@ -328,7 +335,7 @@ function ENT:Initialize()
 
 	self:SetBloodColor(DONT_BLEED)
 
-	self:SetHealth(1e8)
+	self:SetHealth(1000)
 
 	self:SetRenderMode(RENDERMODE_TRANSALPHA)
 	self:SetColor(Color(255, 255, 255, 1))
@@ -527,7 +534,7 @@ function ENT:ClaimHidingSpot(hidingSpot)
 end
 
 local HIGH_JUMP_HEIGHT = 500
-function ENT:AtatrocitytJumpAtTarget()
+function ENT:AttemptJumpAtTarget()
 	if not self:IsOnGround() then return end
 
 	local targetPos = self.CurrentTarget:GetPos()
@@ -542,6 +549,8 @@ function ENT:AtatrocitytJumpAtTarget()
 		self.loco:Jump()
 		self.loco:SetJumpHeight(300)
 
+		self:EmitSound((jumpHeight > HIGH_JUMP_HEIGHT and
+			self.JumpHighSound or self.JumpSound), 350, 100)
 	end
 end
 
@@ -626,7 +635,7 @@ function ENT:BehaveUpdate()
 		if self:IsOnGround() and npc_atrocity_allow_jump:GetBool()
 			and currentTime - self.LastJumpScan >= scanInterval
 		then
-			self:AtatrocitytJumpAtTarget()
+			self:AttemptJumpAtTarget()
 			self.LastJumpScan = currentTime
 		end
 	else
@@ -697,7 +706,7 @@ else
 
 local MAT_atrocity = Material("npc_atrocity/atrocity")
 killicon.Add("npc_atrocity", "npc_atrocity/killicon", color_white)
-language.Add("npc_atrocity", "atrocity")
+language.Add("npc_atrocity", "atrocity ")
 
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
@@ -879,7 +888,7 @@ local flavourTexts = {
 		"You never told me the map was this big!"
 	}
 }
-local SECONDS_PER_BRACKET = 300
+local SECONDS_PER_BRACKET = 300 -- 5 minutes
 local color_yellow = Color(255, 255, 80)
 local flavourText = ""
 local lastBracket = 0
